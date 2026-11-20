@@ -18,6 +18,37 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: 'gustello', name: 'Gustello',
+    tagline: 'Sistema POS para restaurantes y cafeterías.',
+    description: 'Plataforma completa para operar un local: plano de mesas en vivo, caja, cocina, catálogo, inventario y reportes. Incluye una app para el comensal con QR, cuenta y pickup.',
+    category: 'Negocios / POS',
+    stack: ['Fastify', 'TypeScript', 'Prisma', 'PostgreSQL', 'React', 'Vite', 'TanStack Query', 'Zustand', 'Tailwind', 'Zod'],
+    highlights: ['Plano de mesas visual con estado en tiempo real', 'Flujo por rol: dueño, cajero, mesero y cocina', 'Contratos Zod compartidos entre frontend y backend', 'Panel de administración: catálogo, inventario, compras, auditoría'],
+    device: 'browser',
+    shots: [
+      { src: 'gustello-piso.webp', label: 'Piso (POS)' },
+      { src: 'gustello-mesas.webp', label: 'Plano de mesas' },
+      { src: 'gustello-catalogo.webp', label: 'Catálogo' },
+    ],
+    note: 'Monorepo modular: una API y tres apps (POS, administración y comensal) que comparten tipos y validaciones.',
+  },
+  {
+    slug: 'havren', name: 'Havren',
+    tagline: 'Plataforma de gestión escolar personalizable por colegio.',
+    description: 'Gestión académica y administrativa para colegios: cursos, calificaciones, asistencia, horarios, pagos, citas y mensajería, con paneles según el rol. Cada colegio configura su nombre, escudo y paleta.',
+    category: 'Plataformas',
+    stack: ['Next.js 14', 'Express', 'TypeScript', 'Prisma', 'PostgreSQL', 'Socket.io', 'Docker'],
+    highlights: ['Cinco roles: administrador, director, maestro, estudiante y padre', 'Marca blanca: tema, escudo y colores editables', 'Auditoría y solicitudes de cambio de notas', 'Landing pública editable desde el panel'],
+    device: 'browser',
+    shots: [
+      { src: 'havren-inicio.webp', label: 'Panel' },
+      { src: 'havren-cursos.webp', label: 'Cursos' },
+      { src: 'havren-usuarios.webp', label: 'Usuarios' },
+      { src: 'havren-landing.webp', label: 'Landing' },
+    ],
+    note: 'Pensado como producto: el mismo sistema sirve a distintos colegios cambiando solo su configuración visual.',
+  },
+  {
     slug: 'mconnect', name: 'MConnect', featured: true,
     tagline: 'Radio walkie-talkie y chat cifrado en tiempo real.',
     description: 'Sistema cerrado de radio en tiempo real, chat cifrado con mensajes efímeros y ubicación familiar, vía túnel a un VPS. Cliente web y gateway propio.',
@@ -56,17 +87,6 @@ export const projects: Project[] = [
     category: 'Plataformas',
     stack: ['Node.js', 'SQLite', 'WhatsApp', 'GPS', 'Recurrente'],
     highlights: ['Tres roles: cliente, tienda y conductor', 'Ubicación GPS de alta precisión', 'Pedidos y avisos de estado por WhatsApp'],
-    device: 'phone',
-    shots: [{ src: 'ent-driver.webp', label: 'App del conductor' }],
-    note: 'El conductor recibe la oferta en su teléfono y el mapa se centra en su posición real, sin instalar nada.',
-  },
-  {
-    slug: 'pos-system', name: 'POS System',
-    tagline: 'Punto de venta modular para restaurante o cafetería.',
-    description: 'Monorepo con modular monolith en frontend y backend, organizado por dominio y con contratos explícitos.',
-    category: 'Negocios / POS',
-    stack: ['Fastify', 'React', 'TypeScript', 'pnpm', 'Vitest', 'Docker'],
-    highlights: ['Apps separadas: API, POS operativo y administración', 'Arquitectura por dominios con contratos'],
   },
   {
     slug: 'punto-de-venta', name: 'Punto de venta',
@@ -75,13 +95,6 @@ export const projects: Project[] = [
     category: 'Negocios / POS',
     stack: ['Fastify', 'SQLite', 'React', 'Vite'],
     highlights: ['Dinero en centavos enteros', 'SQLite nativo de Node, sin dependencias nativas', 'Pruebas del servidor'],
-    device: 'browser',
-    shots: [
-      { src: 'pdv-vender.webp', label: 'Vender' },
-      { src: 'pdv-reportes.webp', label: 'Reportes' },
-      { src: 'pdv-productos.webp', label: 'Productos' },
-    ],
-    note: 'Pensado para que una caja nunca pierda un centavo: todo el dinero se maneja en enteros y cada venta es una transacción.',
   },
   {
     slug: 'shopcart', name: 'ShopCart',
@@ -90,14 +103,6 @@ export const projects: Project[] = [
     category: 'Plataformas',
     stack: ['SQL Server', 'Express', 'TypeScript', 'React'],
     highlights: ['9 módulos de punta a punta', '114 pruebas de integración en la API', '20 pruebas e2e en navegador'],
-  },
-  {
-    slug: 'colegio-sistema', name: 'Sistema de Gestión Escolar',
-    tagline: 'Gestión escolar web.',
-    description: 'Monorepo con frontend en Next.js, backend en Express y código compartido, con scripts de respaldo de base de datos.',
-    category: 'Plataformas',
-    stack: ['Next.js 14', 'Express', 'TypeScript', 'Docker'],
-    highlights: ['Monorepo con paquete compartido', 'Scripts de backup'],
   },
   {
     slug: 'sistema-inventario', name: 'Sistema de inventario',
