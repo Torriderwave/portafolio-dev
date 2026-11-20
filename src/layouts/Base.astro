@@ -1,6 +1,20 @@
 ---
 import '../styles/global.css';
-const { title, description = '' } = Astro.props;
+import interUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import monoUrl from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
+
+interface Props { title: string; description?: string; image?: string; imageAlt?: string; }
+const { title, description = '', image, imageAlt = '' } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+const canonical = `${site}${base}/`;
+const ogImage = image ? `${site}${base}/${image}` : undefined;
+const fontCss = `
+@font-face{font-family:"Inter Variable";font-style:normal;font-display:swap;font-weight:100 900;src:url(${interUrl}) format("woff2-variations")}
+@font-face{font-family:"JetBrains Mono Variable";font-style:normal;font-display:swap;font-weight:100 800;src:url(${monoUrl}) format("woff2-variations")}
+@font-face{font-family:"Inter Fallback";src:local("Arial");size-adjust:107%;ascent-override:90%;descent-override:22%;line-gap-override:0%}
+`;
 ---
 <!doctype html>
 <html lang="es">
@@ -9,9 +23,61 @@ const { title, description = '' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0b0c11" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicon-32.png`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${base}/apple-touch-icon.png`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="Pablo · Portafolio de desarrollo" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:width" content="1200" />}
+    {ogImage && <meta property="og:image:height" content="630" />}
+    {ogImage && <meta property="og:image:alt" content={imageAlt} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={fontCss}></style>
+    <script is:inline>document.documentElement.classList.add('js')</script>
   </head>
-  <body class="min-h-screen antialiased"><slot /></body>
+  <body>
+    <a href="#main" class="skip-link">Saltar al contenido</a>
+    <slot />
+    <script>
+      // Reveal-on-scroll: el contenido es visible sin JS; solo se oculta una vez que el observer está listo.
+      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('reveal-on');
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '0px 0px 8% 0px', threshold: 0 });
+        items.forEach((el) => io.observe(el));
+        // Respaldo síncrono con el scroll: revela en el mismo frame (el observer puede retrasarse).
+        let ticking = false;
+        const sweep = () => {
+          ticking = false;
+          const vh = innerHeight * 1.08;
+          items.forEach((el) => {
+            if (el.classList.contains('is-in')) return;
+            const r = el.getBoundingClientRect();
+            if (r.top < vh && r.bottom > 0) { el.classList.add('is-in'); io.unobserve(el); }
+          });
+        };
+        addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(sweep); } }, { passive: true });
+        sweep();
+      }
+    </script>
+  </body>
 </html>

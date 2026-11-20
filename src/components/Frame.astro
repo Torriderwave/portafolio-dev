@@ -1,33 +1,91 @@
 ---
-// Marco de navegador o teléfono con capturas intercambiables (tabs).
-interface Props { id: string; shots: { src: string; label: string }[]; device?: 'browser' | 'phone'; title: string; }
-const { id, shots, device = 'browser', title } = Astro.props;
+// Marco de navegador o teléfono con capturas intercambiables (tabs accesibles).
+// Sin JS: todas las capturas se muestran apiladas, cada una con su leyenda.
+interface Props {
+  id: string;
+  shots: { src: string; label: string }[];
+  device?: 'browser' | 'phone';
+  title: string;
+  /** Primera captura: eager + fetchpriority=high (solo para la imagen LCP). */
+  priority?: boolean;
+  /** Atributo sizes para el srcset de las capturas de 1800px. */
+  sizes?: string;
+}
+const { id, shots, device = 'browser', title, priority = false, sizes = '(min-width: 1024px) 600px, 100vw' } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const isPhone = device === 'phone';
+const dims = isPhone ? { w: 560, h: 1212 } : { w: 1800, h: 1126 };
+const srcset = (f: string) => [800, 1200].map((w) => `${base}/projects/${f.replace('.webp', `-${w}.webp`)} ${w}w`).concat(`${base}/projects/${f} 1800w`).join(', ');
+const host = title.toLowerCase().replace(/\s+/g, '-');
 ---
-{device === 'phone' ? (
-  <div class="mx-auto w-[260px] rounded-[2.4rem] border border-line bg-black p-2.5 shadow-2xl shadow-black/60">
-    <div class="overflow-hidden rounded-[1.9rem] bg-white">
-      <img src={`${base}/projects/${shots[0].src}`} alt={`${title}: ${shots[0].label}`} loading="lazy" class="block aspect-[390/844] w-full object-cover object-top" />
-    </div>
-  </div>
-) : (
-  <div class="frame overflow-hidden rounded-xl border border-line bg-panel shadow-2xl shadow-black/60" data-frame={id}>
-    <div class="flex items-center gap-3 border-b border-line bg-bg2 px-3 py-2">
-      <div class="flex gap-1.5" aria-hidden="true"><i class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]"></i><i class="h-2.5 w-2.5 rounded-full bg-[#febc2e]"></i><i class="h-2.5 w-2.5 rounded-full bg-[#28c840]"></i></div>
-      <div class="mx-auto max-w-xs flex-1 truncate rounded-md bg-bg px-3 py-1 text-center font-mono text-[11px] text-mute">localhost / {title.toLowerCase().replace(/\s+/g, '-')}</div>
-      <div class="w-10"></div>
-    </div>
-    <div class="relative aspect-[16/10] bg-white">
-      {shots.map((s, i) => (
-        <img src={`${base}/projects/${s.src}`} alt={`${title}: ${s.label}`} loading={i === 0 ? 'eager' : 'lazy'} data-shot={i} class:list={['shot absolute inset-0 h-full w-full object-cover object-top', i === 0 ? 'opacity-100' : 'opacity-0']} />
-      ))}
-    </div>
-    {shots.length > 1 && (
-      <div class="flex gap-1 border-t border-line bg-bg2 p-1.5" role="tablist" aria-label={`Pantallas de ${title}`}>
+<div class:list={['frame', isPhone && 'mx-auto w-full max-w-[17rem]']} data-frame={id}>
+  <div class:list={['device', isPhone && '!rounded-[2.4rem] !border-line2 !bg-black p-2.5']}>
+    {!isPhone && (
+      <div class="device-bar">
+        <div class="flex gap-1.5" aria-hidden="true"><i class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]"></i><i class="h-2.5 w-2.5 rounded-full bg-[#febc2e]"></i><i class="h-2.5 w-2.5 rounded-full bg-[#28c840]"></i></div>
+        <div class="mx-auto min-w-0 max-w-xs flex-1 truncate rounded-md bg-bg px-3 py-1 text-center font-mono text-micro text-mute" aria-hidden="true">localhost / {host}</div>
+        <div class="w-10 shrink-0" aria-hidden="true"></div>
+      </div>
+    )}
+    {!isPhone && shots.length > 1 && (
+      <div class="tabs js-only" role="tablist" aria-label={`Pantallas de ${title}`}>
         {shots.map((s, i) => (
-          <button type="button" role="tab" aria-selected={i === 0} data-tab={i} class="tab flex-1 rounded-md px-3 py-1.5 text-sm text-mute transition hover:text-fg aria-selected:bg-panel aria-selected:text-fg">{s.label}</button>
+          <button type="button" role="tab" id={`${id}-tab-${i}`} aria-controls={`${id}-panel-${i}`} aria-selected={i === 0} tabindex={i === 0 ? 0 : -1} class="tab">{s.label}</button>
         ))}
       </div>
     )}
+    <div class:list={['stage', isPhone && 'overflow-hidden rounded-[1.9rem]']}>
+      {shots.map((s, i) => (
+        <div role={shots.length > 1 && !isPhone ? 'tabpanel' : undefined} id={`${id}-panel-${i}`} aria-labelledby={shots.length > 1 && !isPhone ? `${id}-tab-${i}` : undefined} data-active={i === 0} class="panel">
+          <figure class="m-0">
+          <img
+            src={`${base}/projects/${s.src}`}
+            srcset={isPhone ? undefined : srcset(s.src)}
+            sizes={isPhone ? undefined : sizes}
+            alt={`${title}: ${s.label}`}
+            width={dims.w} height={dims.h}
+            loading={priority && i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={priority && i === 0 ? 'high' : undefined}
+            decoding="async"
+            class:list={['block h-auto w-full bg-white', isPhone && 'aspect-[390/844] object-cover object-top']}
+          />
+          {!isPhone && (
+            <figcaption class="caption">
+              <span>{s.label}</span>
+              {shots.length > 1 && <span class="font-mono" aria-hidden="true">{String(i + 1).padStart(2, '0')} / {String(shots.length).padStart(2, '0')}</span>}
+            </figcaption>
+          )}
+          </figure>
+        </div>
+      ))}
+    </div>
   </div>
-)}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-frame]').forEach((f) => {
+    const tabs = Array.from(f.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = Array.from(f.querySelectorAll<HTMLElement>('.panel'));
+    if (tabs.length < 2) return;
+    const go = (n: number, focus = false, user = true) => {
+      tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === n)); t.tabIndex = k === n ? 0 : -1; });
+      panels.forEach((p, k) => {
+        p.dataset.active = String(k === n);
+        p.toggleAttribute('inert', k !== n);
+      });
+      if (user) tabs[n].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (focus) tabs[n].focus();
+    };
+    go(0, false, false);
+    tabs.forEach((t, k) => {
+      t.addEventListener('click', () => go(k));
+      t.addEventListener('keydown', (e) => {
+        const last = tabs.length - 1;
+        const next = e.key === 'ArrowRight' ? (k === last ? 0 : k + 1)
+          : e.key === 'ArrowLeft' ? (k === 0 ? last : k - 1)
+          : e.key === 'Home' ? 0 : e.key === 'End' ? last : -1;
+        if (next >= 0) { e.preventDefault(); go(next, true); }
+      });
+    });
+  });
+</script>
