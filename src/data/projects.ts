@@ -7,7 +7,11 @@ export type Project = {
   stack: string[];
   highlights: string[];
   featured?: boolean;
-  image?: string; // ruta en /public/projects/<archivo>.png
+  /** Capturas reales en /public/projects/. Si hay, el proyecto se muestra como demo con marco. */
+  shots?: { src: string; label: string }[];
+  device?: 'browser' | 'phone';
+  /** Lo que resolví / cómo lo pensé (una o dos frases). */
+  note?: string;
   repo?: string;  // solo si el repo es público
   demo?: string;
 };
@@ -52,6 +56,9 @@ export const projects: Project[] = [
     category: 'Plataformas',
     stack: ['Node.js', 'SQLite', 'WhatsApp', 'GPS', 'Recurrente'],
     highlights: ['Tres roles: cliente, tienda y conductor', 'Ubicación GPS de alta precisión', 'Pedidos y avisos de estado por WhatsApp'],
+    device: 'phone',
+    shots: [{ src: 'ent-driver.webp', label: 'App del conductor' }],
+    note: 'El conductor recibe la oferta en su teléfono y el mapa se centra en su posición real, sin instalar nada.',
   },
   {
     slug: 'pos-system', name: 'POS System',
@@ -68,6 +75,13 @@ export const projects: Project[] = [
     category: 'Negocios / POS',
     stack: ['Fastify', 'SQLite', 'React', 'Vite'],
     highlights: ['Dinero en centavos enteros', 'SQLite nativo de Node, sin dependencias nativas', 'Pruebas del servidor'],
+    device: 'browser',
+    shots: [
+      { src: 'pdv-vender.webp', label: 'Vender' },
+      { src: 'pdv-reportes.webp', label: 'Reportes' },
+      { src: 'pdv-productos.webp', label: 'Productos' },
+    ],
+    note: 'Pensado para que una caja nunca pierda un centavo: todo el dinero se maneja en enteros y cada venta es una transacción.',
   },
   {
     slug: 'shopcart', name: 'ShopCart',
@@ -139,6 +153,13 @@ export const profile = {
   name: 'Pablo',
   role: 'Desarrollador full stack',
   bio: 'Construyo aplicaciones web, sistemas de punto de venta, plataformas on-chain en Solana y herramientas de infraestructura.',
+  availability: 'Disponible para empleo y proyectos freelance',
+  offers: [
+    { t: 'Aplicaciones web completas', d: 'Del modelo de datos a la interfaz: React/Next.js, Node y bases de datos SQL.' },
+    { t: 'Sistemas para negocios', d: 'Puntos de venta, inventario, pedidos y entregas que se usan a diario.' },
+    { t: 'Backend y tiempo real', d: 'APIs, WebSockets, colas y servicios en Node y Rust.' },
+    { t: 'Web3 en Solana', d: 'Programas on-chain, SDKs y frontends para NFTs y tokens.' },
+  ],
   github: 'https://github.com/Torriderwave',
   email: '', // agrega tu correo público si quieres mostrarlo
   motion: 'https://torriderwave.github.io/portafolio-motion/',
