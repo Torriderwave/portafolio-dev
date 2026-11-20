@@ -1,0 +1,159 @@
+---
+import Base from '../layouts/Base.astro';
+import Card from '../components/Card.astro';
+import { projects, profile } from '../data/projects';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const categories = Array.from(new Set(projects.map((p) => p.category)));
+const featured = projects.filter((p) => p.featured);
+const rest = projects.filter((p) => !p.featured);
+
+const freq = new Map<string, number>();
+projects.forEach((p) => p.stack.forEach((s) => freq.set(s, (freq.get(s) ?? 0) + 1)));
+const topTech = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([s]) => s);
+
+const stats = [
+  { n: projects.length, l: 'aplicaciones' },
+  { n: categories.length, l: 'áreas' },
+  { n: freq.size, l: 'tecnologías' },
+];
+---
+<Base title={`${profile.name} · ${profile.role}`} description={profile.bio}>
+  <header class="sticky top-0 z-30 border-b border-line/70 bg-bg/80 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 text-sm">
+      <a href="#top" class="font-mono text-accent">~/{profile.name.toLowerCase()}</a>
+      <div class="flex items-center gap-4 text-mute sm:gap-6">
+        <a class="hover:text-fg" href="#destacados">Destacados</a>
+        <a class="hover:text-fg" href="#proyectos">Todos</a>
+        <a class="hover:text-fg" href="#contacto">Contacto</a>
+        <a class="hidden rounded-md border border-line px-3 py-1 text-fg hover:border-accent sm:block" href={profile.motion}>Motion &amp; diseño ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top" class="mx-auto max-w-6xl px-5">
+    <section class="fade-up pb-16 pt-20 sm:pt-28">
+      <p class="inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1 font-mono text-xs text-mute">
+        <span class="h-2 w-2 rounded-full bg-accent"></span>{profile.role}
+      </p>
+      <h1 class="mt-5 max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
+        Software que funciona en producción, <span class="text-accent">de Rust a React.</span>
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg text-mute">{profile.bio}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#destacados" class="rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-black transition hover:brightness-110">Ver proyectos</a>
+        <a href={profile.github} class="rounded-md border border-line px-5 py-2.5 text-sm transition hover:border-accent">GitHub ↗</a>
+      </div>
+      <dl class="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-line pt-6">
+        {stats.map((s) => (
+          <div><dd class="text-3xl font-bold">{s.n}</dd><dt class="text-sm text-mute">{s.l}</dt></div>
+        ))}
+      </dl>
+    </section>
+
+    <section aria-label="Tecnologías" class="border-y border-line py-5">
+      <ul class="flex flex-wrap gap-2">
+        {topTech.map((t) => <li class="rounded-full border border-line bg-panel px-3 py-1 font-mono text-xs text-mute">{t}</li>)}
+      </ul>
+    </section>
+
+    <section id="destacados" class="scroll-mt-20 pt-16">
+      <h2 class="text-2xl font-semibold">Proyectos destacados</h2>
+      <p class="mt-1 text-mute">Los más completos. Haz clic para ver el detalle.</p>
+      <ul class="mt-6 grid gap-5 md:grid-cols-2">
+        {featured.map((p) => <Card p={p} big />)}
+      </ul>
+    </section>
+
+    <section id="proyectos" class="scroll-mt-20 pb-20 pt-16">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-semibold">Todos los proyectos</h2>
+          <p id="count" class="mt-1 text-sm text-mute" aria-live="polite"></p>
+        </div>
+        <label class="relative block w-full sm:w-72">
+          <span class="sr-only">Buscar proyecto o tecnología</span>
+          <input id="q" type="search" placeholder="Buscar: Rust, POS, Solana…" class="w-full rounded-md border border-line bg-panel px-3 py-2 text-sm placeholder:text-mute/70 focus:border-accent focus:outline-none" />
+        </label>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label="Filtrar por área">
+        {['Todos', ...categories].map((c, i) => (
+          <button type="button" data-filter={c} aria-pressed={i === 0} class="filter rounded-full border border-line px-3 py-1 text-sm text-mute transition hover:border-accent hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent/10 aria-pressed:text-accent">{c}</button>
+        ))}
+      </div>
+
+      <ul id="grid" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {projects.map((p) => <Card p={p} />)}
+      </ul>
+      <p id="empty" hidden class="mt-10 rounded-xl border border-dashed border-line p-8 text-center text-mute">Nada coincide con ese filtro. Prueba con otra búsqueda.</p>
+    </section>
+
+    <section id="contacto" class="scroll-mt-20 border-t border-line py-16">
+      <h2 class="text-2xl font-semibold">Contacto</h2>
+      <p class="mt-2 max-w-xl text-mute">¿Tienes un proyecto en mente? Escríbeme o revisa mi código en GitHub.</p>
+      <div class="mt-5 flex flex-wrap gap-3 text-sm">
+        <a class="rounded-md bg-accent px-4 py-2 font-semibold text-black hover:brightness-110" href={profile.github}>GitHub</a>
+        {profile.email && <a class="rounded-md border border-line px-4 py-2 hover:border-accent" href={`mailto:${profile.email}`}>{profile.email}</a>}
+        <a class="rounded-md border border-line px-4 py-2 hover:border-accent" href={profile.motion}>Portafolio de motion y diseño ↗</a>
+      </div>
+    </section>
+  </main>
+  <footer class="border-t border-line py-6 text-center text-xs text-mute">© {new Date().getFullYear()} {profile.name}</footer>
+
+  <dialog id="modal" aria-labelledby="m-title" class="m-auto max-h-[90vh] w-[min(680px,94vw)] overflow-auto rounded-2xl border border-line bg-panel p-0 text-fg">
+    <div class="sticky top-0 flex items-center justify-between border-b border-line bg-panel/95 px-5 py-3 backdrop-blur">
+      <p id="m-cat" class="font-mono text-xs text-accent"></p>
+      <button id="m-close" type="button" aria-label="Cerrar" class="rounded px-2 text-xl text-mute hover:text-fg">✕</button>
+    </div>
+    <div id="m-body" class="px-5 pb-6 pt-4"></div>
+  </dialog>
+
+  <script is:inline define:vars={{ projects, base }}>
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const cards = [...document.querySelectorAll('#grid .card')];
+    const buttons = [...document.querySelectorAll('.filter')];
+    const q = document.getElementById('q'), count = document.getElementById('count'), empty = document.getElementById('empty');
+    let cat = 'Todos';
+    function apply() {
+      const term = q.value.trim().toLowerCase();
+      let n = 0;
+      cards.forEach((c) => {
+        const ok = (cat === 'Todos' || c.dataset.cat === cat) && (!term || c.dataset.q.includes(term));
+        c.hidden = !ok; if (ok) n++;
+      });
+      count.textContent = n === cards.length ? `${n} proyectos` : `${n} de ${cards.length} proyectos`;
+      empty.hidden = n > 0;
+    }
+    buttons.forEach((b) => b.addEventListener('click', () => {
+      cat = b.dataset.filter;
+      buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      apply();
+    }));
+    q.addEventListener('input', apply); apply();
+
+    const modal = document.getElementById('modal'), body = document.getElementById('m-body'), mcat = document.getElementById('m-cat');
+    function show(slug) {
+      const p = projects.find((x) => x.slug === slug); if (!p) return;
+      mcat.textContent = p.category;
+      const img = p.image ? `<img src="${base}/projects/${esc(p.image)}" alt="Captura de ${esc(p.name)}" class="mb-5 w-full rounded-lg border border-line" />` : '';
+      const links = [p.repo && `<a class="text-accent hover:underline" href="${esc(p.repo)}">Código ↗</a>`, p.demo && `<a class="text-accent hover:underline" href="${esc(p.demo)}">Demo ↗</a>`].filter(Boolean).join('');
+      body.innerHTML = `${img}
+        <h3 id="m-title" class="text-2xl font-bold">${esc(p.name)}</h3>
+        <p class="mt-1 text-fg/90">${esc(p.tagline)}</p>
+        <p class="mt-4 text-mute">${esc(p.description)}</p>
+        <h4 class="mt-5 text-sm font-semibold">Puntos clave</h4>
+        <ul class="mt-2 space-y-1.5 text-sm text-mute">${p.highlights.map((h) => `<li class="flex gap-2"><span class="text-accent">▸</span>${esc(h)}</li>`).join('')}</ul>
+        <h4 class="mt-5 text-sm font-semibold">Stack</h4>
+        <ul class="mt-2 flex flex-wrap gap-1.5">${p.stack.map((s) => `<li class="rounded bg-bg px-2 py-0.5 font-mono text-xs text-mute">${esc(s)}</li>`).join('')}</ul>
+        ${links ? `<div class="mt-5 flex gap-5 text-sm">${links}</div>` : ''}`;
+      if (!modal.open) modal.showModal();
+      history.replaceState(null, '', '#' + slug);
+    }
+    document.querySelectorAll('.open').forEach((b) => b.addEventListener('click', () => show(b.dataset.slug)));
+    document.getElementById('m-close').addEventListener('click', () => modal.close());
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+    modal.addEventListener('close', () => history.replaceState(null, '', location.pathname + location.search));
+    if (projects.some((p) => '#' + p.slug === location.hash)) show(location.hash.slice(1));
+  </script>
+</Base>
