@@ -48,36 +48,13 @@ const fontCss = `
     <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
     <style is:inline set:html={fontCss}></style>
-    <script is:inline>document.documentElement.classList.add('js')</script>
+    <script is:inline>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('fx')</script>
   </head>
   <body>
     <a href="#main" class="skip-link">Saltar al contenido</a>
     <slot />
     <script>
-      // Reveal-on-scroll: el contenido es visible sin JS; solo se oculta una vez que el observer está listo.
-      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
-      if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.classList.add('reveal-on');
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach((e) => {
-            if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
-          });
-        }, { rootMargin: '0px 0px 8% 0px', threshold: 0 });
-        items.forEach((el) => io.observe(el));
-        // Respaldo síncrono con el scroll: revela en el mismo frame (el observer puede retrasarse).
-        let ticking = false;
-        const sweep = () => {
-          ticking = false;
-          const vh = innerHeight * 1.08;
-          items.forEach((el) => {
-            if (el.classList.contains('is-in')) return;
-            const r = el.getBoundingClientRect();
-            if (r.top < vh && r.bottom > 0) { el.classList.add('is-in'); io.unobserve(el); }
-          });
-        };
-        addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(sweep); } }, { passive: true });
-        sweep();
-      }
+      import '../scripts/motion.ts';
     </script>
   </body>
 </html>

@@ -2,8 +2,12 @@
 import type { ContactAction } from '../data/contact';
 interface Props { a: ContactAction; class?: string; showHint?: boolean }
 const { a, class: cls = '', showHint = false } = Astro.props;
+// Ondas de señal (solo «Llamar»): decorativas, se animan en hover/focus.
+const waves = a.id === 'llamar' ? '<path class="wv wv1" d="M14.05 2a9 9 0 0 1 8 7.94"/><path class="wv wv2" d="M14.05 6A5 5 0 0 1 18 10"/>' : '';
+const send = a.id === 'whatsapp';
 ---
 <a href={a.href} aria-label={a.aria} target={a.external ? '_blank' : undefined} rel={a.external ? 'noopener noreferrer' : undefined} class={cls} data-contact={a.id}>
-  <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={a.icon}></svg>
+  <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={a.icon + waves}></svg>
   {showHint && a.hint ? <span class="flex min-w-0 flex-col text-left leading-tight"><span>{a.label}</span><span class="truncate font-mono text-micro font-normal opacity-70">{a.hint}</span></span> : <span>{a.label}</span>}
+  {send && <><span class="pkt" aria-hidden="true"></span><span class="ticks" aria-hidden="true">✓✓</span></>}
 </a>
