@@ -30,6 +30,7 @@ export const projects: Project[] = [
       { src: 'gustello-mesas.webp', label: 'Plano de mesas' },
       { src: 'gustello-catalogo.webp', label: 'Catálogo' },
     ],
+    demo: 'https://torriderwave.github.io/demos/gustello/',
     note: 'Monorepo modular: una API y tres apps (POS, administración y comensal) que comparten tipos y validaciones.',
   },
   {
@@ -46,6 +47,7 @@ export const projects: Project[] = [
       { src: 'havren-usuarios.webp', label: 'Usuarios' },
       { src: 'havren-landing.webp', label: 'Landing' },
     ],
+    demo: 'https://torriderwave.github.io/demos/havren/',
     note: 'Pensado como producto: el mismo sistema sirve a distintos colegios cambiando solo su configuración visual.',
   },
   {
