@@ -1,0 +1,9 @@
+---
+import type { ContactAction } from '../data/contact';
+interface Props { a: ContactAction; class?: string; showHint?: boolean }
+const { a, class: cls = '', showHint = false } = Astro.props;
+---
+<a href={a.href} aria-label={a.aria} target={a.external ? '_blank' : undefined} rel={a.external ? 'noopener noreferrer' : undefined} class={cls} data-contact={a.id}>
+  <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={a.icon}></svg>
+  {showHint && a.hint ? <span class="flex min-w-0 flex-col text-left leading-tight"><span>{a.label}</span><span class="truncate font-mono text-micro font-normal opacity-70">{a.hint}</span></span> : <span>{a.label}</span>}
+</a>
