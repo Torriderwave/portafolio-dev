@@ -55,8 +55,10 @@ const fontCss = `
     <slot />
     <script>
       // Reveal-on-scroll: el contenido es visible sin JS; solo se oculta una vez que el observer está listo.
-      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      import '../scripts/motion.ts';
+      const items = document.querySelectorAll<HTMLElement>('[data-reveal],[data-stagger]');
       if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll<HTMLElement>('[data-stagger]').forEach((c) => Array.from(c.children).forEach((k, i) => (k as HTMLElement).style.setProperty('--i', String(Math.min(i, 14)))));
         document.documentElement.classList.add('reveal-on');
         const io = new IntersectionObserver((entries) => {
           entries.forEach((e) => {

@@ -72,6 +72,7 @@ const host = title.toLowerCase().replace(/\s+/g, '-');
       panels.forEach((p, k) => {
         p.dataset.active = String(k === n);
         p.toggleAttribute('inert', k !== n);
+        p.style.setProperty('--x', k === n ? '0%' : k < n ? '-3%' : '3%'); // desliza en la dirección del cambio
       });
       if (user) tabs[n].scrollIntoView({ block: 'nearest', inline: 'nearest' });
       if (focus) tabs[n].focus();
