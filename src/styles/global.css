@@ -353,7 +353,7 @@ details.more[open] > summary svg { transform: rotate(180deg); }
 .dock .btn { font-size: 1rem; }
 @media (max-width: 767.98px) {
   /* alto de la barra: .75rem + 3rem + .75rem (+ área segura) */
-  .site-footer { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+  .site-footer { padding-bottom: env(safe-area-inset-bottom); }
 }
 @media (min-width: 768px) { .dock { display: none; } }
 @media (max-width: 359.98px) { .contact-grid { grid-template-columns: 1fr; } }
