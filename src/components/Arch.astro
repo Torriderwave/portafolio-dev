@@ -1,0 +1,46 @@
+---
+// Diagrama de arquitectura decorativo derivado del stack real del proyecto (sin copy nuevo).
+interface Props { stack: string[] }
+const { stack } = Astro.props;
+const has = (s: string, names: string[]) => names.some((n) => s === n || s.startsWith(n + ' '));
+const CLIENT = ['React', 'Next.js', 'Vite', 'Tauri'];
+const API = ['Fastify', 'Express', 'NestJS', 'Colyseus', 'axum'];
+const DB = ['PostgreSQL', 'Postgres', 'SQLite', 'SQL Server', 'Redis', 'Valkey'];
+const ORM = ['Prisma', 'Drizzle'];
+const RT = ['Socket.io', 'WebSocket'];
+const pick = (names: string[]) => stack.filter((s) => has(s, names));
+const nodes = [
+  { id: 'c', items: pick(CLIENT) },
+  { id: 'a', items: pick(API) },
+  { id: 'd', items: [...pick(DB), ...pick(ORM)] },
+].filter((n) => n.items.length).map((n) => ({ ...n, items: n.items.slice(0, 2) }));
+const rt = pick(RT)[0];
+const W = 360, w = 100, h = 44, y = 6;
+const gap = nodes.length > 1 ? (W - nodes.length * w) / (nodes.length - 1) : 0;
+const placed = nodes.map((n, i) => ({ ...n, x: nodes.length > 1 ? i * (w + gap) : (W - w) / 2 }));
+const my = y + h / 2;
+const links = placed.slice(1).map((n, i) => `M${placed[i].x + w} ${my}H${n.x}`);
+const apiNode = placed.find((n) => n.id === 'a') ?? placed[placed.length - 1];
+const rtY = y + h + 16, vbH = rt ? rtY + h - 12 + 6 : y + h + 6;
+const path = placed.length > 1 ? `M${placed[0].x + w / 2} ${my}H${placed[placed.length - 1].x + w / 2}` : '';
+const show = placed.length > 1;
+---
+{show && (
+  <svg class="arch" viewBox={`0 0 ${W} ${vbH}`} font-size="13" aria-hidden="true" focusable="false">
+    {links.map((d, i) => <path class="ln" pathLength="1" style={`--k:${i + 1}`} d={d} />)}
+    {rt && <path class="ln" pathLength="1" style="--k:3" d={`M${apiNode.x + w / 2} ${y + h}V${rtY}`} />}
+    {placed.map((n, i) => (
+      <g>
+        <rect class="nd" pathLength="1" style={`--k:${i}`} x={n.x} y={y} width={w} height={h} rx="6" />
+        {n.items.map((t, j) => <text class="tx" x={n.x + w / 2} y={my + 4 + (j - (n.items.length - 1) / 2) * 15}>{t}</text>)}
+      </g>
+    ))}
+    {rt && (
+      <g>
+        <rect class="nd" pathLength="1" style="--k:3" x={apiNode.x} y={rtY} width={w} height={26} rx="6" />
+        <text class="tx" x={apiNode.x + w / 2} y={rtY + 17}>{rt}</text>
+      </g>
+    )}
+    {path && <circle class="bus" r="5" style={`offset-path: path('${path}')`} />}
+  </svg>
+)}
